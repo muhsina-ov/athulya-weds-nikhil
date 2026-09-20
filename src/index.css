@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 100% 97%;
+    --foreground: 24 40% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 16 84% 44%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.625rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* ── Marigold palette ── */
+    --marigold: 28 95% 50%;
+    --marigold-deep: 20 88% 42%;
+    --sindoor: 351 74% 34%;
+    --leaf: 93 55% 28%;
+    --gold: 41 60% 47%;
+    --cream: 40 100% 96%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: auto; /* Lenis owns smoothing */
+  }
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: hsl(var(--marigold) / 0.3);
+  }
+}
+
+/* ═══════════ Typography helpers ═══════════ */
+.font-script {
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+}
+.font-serif-body {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+.font-caps {
+  font-family: "Cinzel", serif;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* ═══════════ Decorative utilities ═══════════ */
+.text-gradient-gold {
+  background: linear-gradient(120deg, #b5741b 0%, #e8a93c 35%, #f7d784 50%, #e8a93c 65%, #b5741b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-sindoor {
+  background: linear-gradient(135deg, #8f1d3a 0%, #c62b4f 55%, #e0476a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.card-frame {
+  position: relative;
+  background: rgba(255, 253, 247, 0.82);
+  backdrop-filter: blur(6px);
+  border: 1px solid hsl(var(--gold) / 0.45);
+  box-shadow: 0 18px 50px -18px rgba(120, 62, 8, 0.28), inset 0 0 0 6px rgba(255, 255, 255, 0.35);
+}
+.card-frame::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed hsl(var(--gold) / 0.5);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: hsl(var(--gold));
+}
+.ornament-divider::before,
+.ornament-divider::after {
+  content: "";
+  height: 1px;
+  width: 64px;
+  background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.8), transparent);
+}
+
+/* ═══════════ Keyframe animations ═══════════ */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.animate-float {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(0.6deg); }
+  50% { transform: rotate(-0.6deg); }
+}
+.animate-sway {
+  transform-origin: top center;
+  animation: sway 7s ease-in-out infinite;
+}
+
+@keyframes petal-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% { opacity: var(--petal-opacity, 0.9); }
+  92% { opacity: var(--petal-opacity, 0.9); }
+  100% {
+    transform: translate3d(var(--petal-drift, 40px), 108vh, 0) rotate(var(--petal-spin, 320deg));
+    opacity: 0;
+  }
+}
+.petal {
+  position: absolute;
+  top: 0;
+  border-radius: 60% 4% 60% 60%;
+  background: radial-gradient(circle at 30% 30%, #ffc24d 0%, #f58a1f 55%, #d96a08 100%);
+  box-shadow: 0 1px 3px rgba(150, 70, 0, 0.25);
+  animation: petal-fall linear infinite;
+  will-change: transform;
+}
+.petal.petal-rose {
+  background: radial-gradient(circle at 30% 30%, #ff9db1 0%, #e0476a 60%, #b92c50 100%);
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--marigold) / 0.35); }
+  50% { box-shadow: 0 0 34px 6px hsl(var(--marigold) / 0.3); }
+}
+.animate-glow {
+  animation: glow-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(8px); opacity: 0.45; }
+}
+.animate-scroll-hint {
+  animation: scroll-hint 1.8s ease-in-out infinite;
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); }
+  33% { transform: scale(1.06) rotate(1.2deg); }
+  66% { transform: scale(0.97) rotate(-0.6deg); }
+}
+.animate-flame {
+  transform-origin: bottom center;
+  animation: flame-flicker 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer-text 6s linear infinite;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .petal, .animate-float, .animate-sway, .animate-glow,
+  .animate-scroll-hint, .animate-flame, .animate-shimmer {
+    animation: none !important;
+  }
+}
