@@ -109,36 +109,19 @@ export default function Hero() {
           {invite.weddingDateFormatted}
         </motion.p>
 
-        {/* Royal Kerala Arched Couple Caricature Portrait */}
+        {/* Kerala Couple Caricature Portrait without frame */}
         <motion.div
           variants={rise}
           initial="hidden"
           animate="show"
           custom={1.05}
-          className="animate-float relative mt-6"
+          className="animate-float relative mt-6 flex justify-center items-center"
         >
-          {/* Decorative outer glow & halo */}
-          <div className="absolute -inset-3 rounded-t-[150px] rounded-b-3xl bg-gradient-to-b from-[#e8a93c]/50 via-[#c62b4f]/30 to-amber-500/20 blur-lg -z-10" />
-
-          {/* Arched Frame Container */}
-          <div className="relative w-64 sm:w-80 overflow-hidden rounded-t-[140px] rounded-b-3xl border-[3px] border-[#d4972e] p-2 bg-gradient-to-b from-[#fff7e6] via-[#fffdfa] to-[#fff0e1] shadow-[0_20px_50px_-15px_rgba(143,29,58,0.4)]">
-            <div className="relative overflow-hidden rounded-t-[130px] rounded-b-2xl bg-gradient-to-b from-amber-100/50 via-rose-50/40 to-amber-50/80 p-2 flex items-center justify-center">
-              {/* Subtle background mandala / ring glow behind caricature */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(246,185,59,0.35)_0%,transparent_70%)] pointer-events-none" />
-              <img
-                src="/assets/couple.png"
-                alt={`${invite.groomFirst} & ${invite.brideFirst}`}
-                className="relative z-10 w-full max-h-[350px] sm:max-h-[390px] object-contain drop-shadow-xl transition-transform duration-700 hover:scale-105"
-              />
-            </div>
-
-            {/* Bottom arched gold plaque */}
-            <div className="py-2.5 text-center flex items-center justify-center gap-1.5 border-t border-amber-300/40 mt-1">
-              <span className="font-caps text-[11px] sm:text-[12px] text-[#8f1d3a] tracking-[0.25em] font-semibold">
-                {invite.groomFirst} ❤️ {invite.brideFirst}
-              </span>
-            </div>
-          </div>
+          <img
+            src="/assets/couple.png"
+            alt={`${invite.groomFirst} & ${invite.brideFirst}`}
+            className="relative z-10 w-64 sm:w-80 max-h-[420px] object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-105"
+          />
         </motion.div>
       </div>
 

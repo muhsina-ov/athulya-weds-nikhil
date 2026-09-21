@@ -16,7 +16,6 @@ export default function ScratchCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRevealed, setIsRevealed] = useState(false);
-  const [isDrawing, setIsDrawing] = useState(false);
   const [scratchPercent, setScratchPercent] = useState(0);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -166,6 +165,7 @@ export default function ScratchCard({
     const rect = container.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     // Set canvas internal resolution to match physical pixels
     canvas.width = Math.floor(rect.width * dpr);
     canvas.height = Math.floor(rect.height * dpr);
@@ -276,7 +276,6 @@ export default function ScratchCard({
     const onStart = (e: MouseEvent | TouchEvent) => {
       if (isRevealed) return;
       drawing = true;
-      setIsDrawing(true);
       lastPointRef.current = null;
       const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
       const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
@@ -297,7 +296,6 @@ export default function ScratchCard({
     const onEnd = () => {
       if (!drawing) return;
       drawing = false;
-      setIsDrawing(false);
       lastPointRef.current = null;
       checkScratchPercentage();
     };
