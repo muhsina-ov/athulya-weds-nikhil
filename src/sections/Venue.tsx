@@ -23,7 +23,7 @@ export default function Venue() {
           transition={{ duration: 0.9, ease: "easeOut" }}
         >
           <div className="ornament-divider text-xl">❁</div>
-          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold">
+          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold py-1 overflow-visible">
             Locations &amp; Directions
           </h2>
           <p className="mt-2 font-serif-body text-base text-[hsl(var(--foreground)/0.75)]">
@@ -89,19 +89,18 @@ export default function Venue() {
               </div>
 
               {/* Live map preview */}
-              <div className="card-frame mt-7 overflow-hidden rounded-3xl shadow-xl">
+              <div className="card-frame mt-7 overflow-hidden rounded-3xl shadow-xl relative group">
                 <iframe
                   title={`Map — ${currentEvent.venueName}`}
                   src={currentEvent.mapsEmbedUrl}
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="h-64 w-full sm:h-80 border-0"
+                  className="h-64 w-full sm:h-80 border-0 bg-amber-50"
                   allowFullScreen
                 />
               </div>
 
               {/* Get Directions Link Button */}
-              <div className="mt-6 flex justify-center">
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a
                   href={currentEvent.mapDirectionsUrl}
                   target="_blank"

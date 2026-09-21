@@ -72,6 +72,11 @@
 .font-script {
   font-family: "Great Vibes", cursive;
   font-weight: 400;
+  line-height: 1.35 !important;
+  padding-top: 0.18em;
+  padding-bottom: 0.18em;
+  overflow: visible;
+  display: inline-block;
 }
 .font-serif-body {
   font-family: "Cormorant Garamond", Georgia, serif;
@@ -88,12 +93,16 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-top: 0.15em;
+  padding-bottom: 0.15em;
 }
 .text-gradient-sindoor {
   background: linear-gradient(135deg, #8f1d3a 0%, #c62b4f 55%, #e0476a 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  padding-top: 0.15em;
+  padding-bottom: 0.15em;
 }
 .card-frame {
   position: relative;

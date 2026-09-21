@@ -217,7 +217,7 @@ export default function Invitation() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <div className="ornament-divider text-xl">❁</div>
-          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold">
+          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold py-1 overflow-visible">
             The Invitation
           </h2>
         </motion.div>

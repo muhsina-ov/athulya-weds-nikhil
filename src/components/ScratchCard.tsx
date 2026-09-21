@@ -166,17 +166,11 @@ export default function ScratchCard({
     const rect = container.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    // Support high DPI screens
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    // Set canvas internal resolution to match physical pixels
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
-
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-    }
 
     drawFoil();
     setIsRevealed(false);
@@ -185,14 +179,21 @@ export default function ScratchCard({
   }, [drawFoil]);
 
   useEffect(() => {
-    initCanvas();
+    // Delay slightly to ensure layout and font styles are calculated
+    const timer = setTimeout(() => {
+      initCanvas();
+    }, 100);
+
     const handleResize = () => {
       if (!isRevealed) {
         initCanvas();
       }
     };
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [initCanvas, isRevealed]);
 
   // Calculate percentage of foil scratched
@@ -202,7 +203,7 @@ export default function ScratchCard({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const sampleStep = 8; // sample every 8th pixel for fast performance
+    const sampleStep = 10;
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = imgData.data;
     let transparent = 0;
@@ -210,7 +211,7 @@ export default function ScratchCard({
 
     for (let i = 3; i < pixels.length; i += 4 * sampleStep) {
       total++;
-      if (pixels[i] < 60) {
+      if (pixels[i] < 128) {
         transparent++;
       }
     }
@@ -225,7 +226,7 @@ export default function ScratchCard({
   }, [isRevealed, revealThreshold, onReveal]);
 
   // Scratch action
-  const scratch = useCallback(
+  const scratchAt = useCallback(
     (clientX: number, clientY: number) => {
       const canvas = canvasRef.current;
       if (!canvas || isRevealed) return;
@@ -233,14 +234,18 @@ export default function ScratchCard({
       if (!ctx) return;
 
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const x = (clientX - rect.left) * dpr;
-      const y = (clientY - rect.top) * dpr;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+      const radius = 28 * scaleX;
 
       ctx.save();
-      // Set to destination-out to erase pixels
       ctx.globalCompositeOperation = "destination-out";
-      ctx.lineWidth = 45 * dpr;
+      ctx.fillStyle = "rgba(0,0,0,1)";
+      ctx.strokeStyle = "rgba(0,0,0,1)";
+      ctx.lineWidth = radius * 2;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
@@ -251,7 +256,7 @@ export default function ScratchCard({
         ctx.stroke();
       } else {
         ctx.beginPath();
-        ctx.arc(x, y, (45 * dpr) / 2, 0, Math.PI * 2);
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
@@ -261,32 +266,64 @@ export default function ScratchCard({
     [isRevealed]
   );
 
-  // Pointer event handlers (mouse + touch + stylus)
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (isRevealed) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setIsDrawing(true);
-    lastPointRef.current = null;
-    scratch(e.clientX, e.clientY);
-  };
+  // Unified Pointer & Touch listeners attached to canvas ref
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || isRevealed) return;
-    scratch(e.clientX, e.clientY);
-    checkScratchPercentage();
-  };
+    let drawing = false;
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      // ignore
-    }
-    setIsDrawing(false);
-    lastPointRef.current = null;
-    checkScratchPercentage();
-  };
+    const onStart = (e: MouseEvent | TouchEvent) => {
+      if (isRevealed) return;
+      drawing = true;
+      setIsDrawing(true);
+      lastPointRef.current = null;
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      scratchAt(clientX, clientY);
+    };
+
+    const onMove = (e: MouseEvent | TouchEvent) => {
+      if (!drawing || isRevealed) return;
+      if ("touches" in e && e.cancelable) {
+        e.preventDefault(); // Prevent page scroll while scratching on mobile
+      }
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      scratchAt(clientX, clientY);
+      checkScratchPercentage();
+    };
+
+    const onEnd = () => {
+      if (!drawing) return;
+      drawing = false;
+      setIsDrawing(false);
+      lastPointRef.current = null;
+      checkScratchPercentage();
+    };
+
+    // Mouse listeners
+    canvas.addEventListener("mousedown", onStart);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+
+    // Touch listeners with passive: false to allow preventing scroll
+    canvas.addEventListener("touchstart", onStart, { passive: false });
+    canvas.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onEnd);
+    window.addEventListener("touchcancel", onEnd);
+
+    return () => {
+      canvas.removeEventListener("mousedown", onStart);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+
+      canvas.removeEventListener("touchstart", onStart);
+      canvas.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener("touchcancel", onEnd);
+    };
+  }, [isRevealed, scratchAt, checkScratchPercentage]);
 
   // Reset scratch card
   const handleReset = () => {
@@ -318,10 +355,6 @@ export default function ScratchCard({
                 filter: "blur(6px)",
                 transition: { duration: 0.6, ease: "easeOut" },
               }}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
               className="absolute inset-0 z-20 h-full w-full cursor-crosshair touch-none select-none rounded-3xl"
               style={{ touchAction: "none" }}
             />

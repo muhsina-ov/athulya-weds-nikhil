@@ -275,7 +275,7 @@ export default function Events() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <div className="ornament-divider text-xl">❁</div>
-          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold">
+          <h2 className="mt-4 font-script text-5xl sm:text-6xl text-gradient-gold py-1 overflow-visible">
             The Auspicious Celebrations
           </h2>
           <p className="mt-2 font-serif-body italic text-base text-[hsl(var(--foreground)/0.75)]">

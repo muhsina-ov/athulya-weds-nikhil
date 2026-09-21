@@ -55,7 +55,7 @@ export const invite = {
       venueAddress: "Kolangattukara, Thrissur, Kerala",
       subVenueNote: "Followed by traditional Wedding Feast (Lunch) at Sri Durganjali Hall, Thechikottukavu Temple, Peramangalam",
       mapDirectionsUrl: "https://maps.app.goo.gl/QWF3NhNZLBck2dHn6?g_st=ac",
-      mapsEmbedUrl: "https://maps.google.com/maps?q=Sri%20Durganjali%20Hall%2C%20Thechikottukavu%20temple%2C%20Peramangalam&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      mapsEmbedUrl: "https://www.openstreetmap.org/export/embed.html?bbox=76.152%2C10.565%2C76.172%2C10.582&layer=mapnik&marker=10.5745886%2C76.1621752",
       note: "Thalikettu Muhurtham: 9:00 AM – 9:30 AM · Followed by Lunch",
     },
     {
@@ -70,7 +70,7 @@ export const invite = {
       venueAddress: "Arimbur, Thrissur, Kerala",
       subVenueNote: "Join us for an evening of joy, celebration, dinner & blessings",
       mapDirectionsUrl: "https://maps.app.goo.gl/6QDBh2rnPvFnqQ9g6?g_st=ac",
-      mapsEmbedUrl: "https://maps.google.com/maps?q=Sree%20Guru%20Deva%20Auditorium%2C%20Arimbur&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      mapsEmbedUrl: "https://www.openstreetmap.org/export/embed.html?bbox=76.140%2C10.488%2C76.160%2C10.506&layer=mapnik&marker=10.4974918%2C76.149704",
       note: "Celebration & Dinner: 5:00 PM to 8:00 PM",
     },
   ] as WeddingEvent[],

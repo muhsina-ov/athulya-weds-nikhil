@@ -74,7 +74,7 @@ export default function Hero() {
           initial="hidden"
           animate="show"
           custom={0.35}
-          className="mt-3 font-script text-6xl sm:text-8xl leading-[1.08] text-gradient-sindoor animate-shimmer"
+          className="mt-2 font-script text-6xl sm:text-8xl text-gradient-sindoor animate-shimmer py-1 overflow-visible"
         >
           {invite.groomFirst}
         </motion.h1>
@@ -94,7 +94,7 @@ export default function Hero() {
           initial="hidden"
           animate="show"
           custom={0.65}
-          className="font-script text-6xl sm:text-8xl leading-[1.08] text-gradient-sindoor animate-shimmer"
+          className="font-script text-6xl sm:text-8xl text-gradient-sindoor animate-shimmer py-1 overflow-visible"
         >
           {invite.brideFirst}
         </motion.h1>

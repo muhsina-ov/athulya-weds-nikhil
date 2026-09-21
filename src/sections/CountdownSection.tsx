@@ -23,7 +23,7 @@ export default function CountdownSection() {
         className="relative text-center"
       >
         <div className="ornament-divider text-xl mb-3">❁</div>
-        <h2 className="font-script text-5xl sm:text-6xl text-gradient-gold mb-3">
+        <h2 className="font-script text-5xl sm:text-6xl text-gradient-gold mb-3 py-1 overflow-visible">
           Counting the Moments
         </h2>
         <p className="font-serif-body italic text-base text-[hsl(var(--foreground)/0.75)] mb-8">

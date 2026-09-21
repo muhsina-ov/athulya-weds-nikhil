@@ -28,7 +28,7 @@ export default function Footer() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 1 }}
-          className="font-script text-6xl sm:text-8xl text-gradient-gold animate-shimmer"
+          className="font-script text-6xl sm:text-8xl text-gradient-gold animate-shimmer py-2 overflow-visible"
         >
           {invite.groomFirst} &amp; {invite.brideFirst}
         </motion.p>
