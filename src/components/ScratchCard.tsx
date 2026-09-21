@@ -4,13 +4,13 @@ import { Sparkles, RotateCcw, Eye } from "lucide-react";
 
 interface ScratchCardProps {
   children: React.ReactNode;
-  revealThreshold?: number; // 0 to 1, default 0.30 (30% scratched reveals all)
+  revealThreshold?: number; // default 0.15 (15% scratched unlocks card easily on mobile)
   onReveal?: () => void;
 }
 
 export default function ScratchCard({
   children,
-  revealThreshold = 0.3,
+  revealThreshold = 0.15,
   onReveal,
 }: ScratchCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,6 +22,7 @@ export default function ScratchCard({
   const hasScratchedRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const lastCheckTimeRef = useRef(0);
+  const strokeCountRef = useRef(0);
 
   // Reveal card function
   const revealCard = useCallback(() => {
@@ -132,7 +133,7 @@ export default function ScratchCard({
     ctx.stroke();
 
     // 5. Center Gold Foil Plaque Badge with Instructions
-    const badgeW = Math.min(310, width - 40);
+    const badgeW = Math.min(310, width - 36);
     const badgeH = 96;
     const bx = cx - badgeW / 2;
     const by = cy - badgeH / 2;
@@ -177,7 +178,7 @@ export default function ScratchCard({
     // Subtitle
     ctx.fillStyle = "#875e18";
     ctx.font = 'italic 12px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText("Swipe or scratch to uncover countdown", cx, cy + 24);
+    ctx.fillText("Swipe finger or drag mouse to uncover", cx, cy + 24);
 
     ctx.restore();
   }, []);
@@ -237,7 +238,8 @@ export default function ScratchCard({
     const currentPercent = Math.min(100, Math.round(pct * 100));
     setScratchPercent(currentPercent);
 
-    if (pct >= revealThreshold) {
+    // Unlocks either via percentage (>= 15%) or cumulative strokes (>= 22 strokes)
+    if (pct >= revealThreshold || strokeCountRef.current >= 22) {
       revealCard();
     }
   }, [isRevealed, revealThreshold, revealCard]);
@@ -258,8 +260,8 @@ export default function ScratchCard({
 
       const x = (clientX - rect.left) * scaleX;
       const y = (clientY - rect.top) * scaleY;
-      // Comfortable brush size (~32 CSS px radius)
-      const radius = 32 * scaleX;
+      // Generous brush size (36 CSS px radius = 72px diameter) for mobile fingers
+      const radius = 36 * scaleX;
 
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
@@ -282,13 +284,68 @@ export default function ScratchCard({
       ctx.restore();
 
       lastPointRef.current = { x, y };
+      strokeCountRef.current += 1;
     },
     [isRevealed]
   );
 
-  // Pointer Event Handlers (Support mouse, touch, and pen with pointer capture)
+  // Direct native touch listeners with { passive: false }
+  // This is CRITICAL for mobile Safari and Android Chrome to completely prevent page scroll while scratching!
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || isRevealed) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (isRevealed) return;
+      if (e.cancelable) e.preventDefault();
+      isScratchingRef.current = true;
+      hasScratchedRef.current = true;
+      lastPointRef.current = null;
+      const touch = e.touches[0];
+      if (touch) {
+        scratchAt(touch.clientX, touch.clientY);
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault(); // Stop mobile page scroll!
+      if (!isScratchingRef.current || isRevealed) return;
+      const touch = e.touches[0];
+      if (touch) {
+        scratchAt(touch.clientX, touch.clientY);
+        const now = performance.now();
+        if (now - lastCheckTimeRef.current > 120) {
+          lastCheckTimeRef.current = now;
+          checkScratchPercentage();
+        }
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault();
+      if (!isScratchingRef.current) return;
+      isScratchingRef.current = false;
+      lastPointRef.current = null;
+      checkScratchPercentage();
+    };
+
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    canvas.addEventListener("touchend", onTouchEnd, { passive: false });
+    canvas.addEventListener("touchcancel", onTouchEnd, { passive: false });
+
+    return () => {
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
+      canvas.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [isRevealed, scratchAt, checkScratchPercentage]);
+
+  // Desktop Mouse pointer handlers
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (isRevealed) return;
+    // Only handle mouse; touch is handled by native listeners above
+    if (e.pointerType === "touch" || isRevealed) return;
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {}
@@ -299,19 +356,18 @@ export default function ScratchCard({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isScratchingRef.current || isRevealed) return;
+    if (e.pointerType === "touch" || !isScratchingRef.current || isRevealed) return;
     scratchAt(e.clientX, e.clientY);
 
-    // Throttle heavy getImageData to once every 150ms for maximum frame rate
     const now = performance.now();
-    if (now - lastCheckTimeRef.current > 150) {
+    if (now - lastCheckTimeRef.current > 120) {
       lastCheckTimeRef.current = now;
       checkScratchPercentage();
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!isScratchingRef.current) return;
+    if (e.pointerType === "touch" || !isScratchingRef.current) return;
     try {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
@@ -334,6 +390,7 @@ export default function ScratchCard({
     hasScratchedRef.current = false;
     isScratchingRef.current = false;
     lastPointRef.current = null;
+    strokeCountRef.current = 0;
     // Redraw foil on next tick when canvas is remounted
     setTimeout(() => {
       drawFoil();
@@ -388,15 +445,15 @@ export default function ScratchCard({
       </div>
 
       {/* Action / Helper bar beneath scratch card */}
-      <div className="mt-4 flex items-center justify-between px-3 text-xs">
+      <div className="mt-4 flex items-center justify-between gap-3 px-2 text-xs">
         <div className="flex items-center gap-2 font-caps text-[11px] sm:text-[12px] text-[hsl(var(--gold))] font-medium">
-          <Sparkles size={15} className="text-[#e8a93c] animate-pulse" />
+          <Sparkles size={16} className="text-[#e8a93c] animate-pulse shrink-0" />
           <span>
             {isRevealed
               ? "🎉 Countdown Unlocked!"
               : scratchPercent > 0
               ? `Scratching... ${scratchPercent}%`
-              : "Use your finger or mouse to scratch the gold foil"}
+              : "Swipe your finger to scratch & uncover"}
           </span>
         </div>
 
@@ -405,7 +462,7 @@ export default function ScratchCard({
             type="button"
             onClick={handleReset}
             whileTap={{ scale: 0.94 }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--gold)/0.4)] bg-amber-50/90 px-3 py-1 font-caps text-[11px] text-[#8f1d3a] shadow-xs transition-colors hover:bg-amber-100 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--gold)/0.4)] bg-amber-50/90 px-3.5 py-1.5 font-caps text-[11px] text-[#8f1d3a] shadow-xs transition-colors hover:bg-amber-100 cursor-pointer min-h-[34px]"
           >
             <RotateCcw size={12} />
             <span>Scratch Again</span>
@@ -414,9 +471,9 @@ export default function ScratchCard({
           <button
             type="button"
             onClick={revealCard}
-            className="inline-flex items-center gap-1 font-caps text-[11px] text-[#8f1d3a] underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/80 bg-gradient-to-r from-amber-100/90 to-amber-50 px-3 py-1.5 font-caps text-[11px] text-[#8f1d3a] font-semibold shadow-xs hover:bg-amber-200 transition-all cursor-pointer min-h-[34px] shrink-0 active:scale-95"
           >
-            <Eye size={12} />
+            <Eye size={13} className="text-[#8f1d3a]" />
             <span>Reveal Instantly</span>
           </button>
         )}
@@ -424,7 +481,7 @@ export default function ScratchCard({
 
       {/* Subtle Progress Bar while scratching */}
       {!isRevealed && scratchPercent > 0 && (
-        <div className="mt-2 mx-3 h-1.5 overflow-hidden rounded-full bg-amber-200/50">
+        <div className="mt-2 mx-2 h-1.5 overflow-hidden rounded-full bg-amber-200/50">
           <div
             className="h-full bg-gradient-to-r from-amber-500 to-[#c62b4f] transition-all duration-200"
             style={{ width: `${Math.min(100, (scratchPercent / (revealThreshold * 100)) * 100)}%` }}
