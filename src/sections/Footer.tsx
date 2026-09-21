@@ -30,7 +30,7 @@ export default function Footer() {
           transition={{ duration: 1 }}
           className="font-script text-6xl sm:text-8xl text-gradient-gold animate-shimmer"
         >
-          {invite.brideFirst} &amp; {invite.groomFirst}
+          {invite.groomFirst} &amp; {invite.brideFirst}
         </motion.p>
 
         <p className="mt-5 max-w-md font-serif-body italic text-lg sm:text-xl text-[#f7e8d0]/90">

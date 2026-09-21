@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Countdown from "@/components/Countdown";
+import ScratchCard from "@/components/ScratchCard";
 import { invite } from "@/config";
 
 export default function CountdownSection() {
@@ -21,10 +22,17 @@ export default function CountdownSection() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative text-center"
       >
-        <h2 className="font-script text-5xl sm:text-6xl text-gradient-gold mb-8">
+        <div className="ornament-divider text-xl mb-3">❁</div>
+        <h2 className="font-script text-5xl sm:text-6xl text-gradient-gold mb-3">
           Counting the Moments
         </h2>
-        <Countdown targetISO={invite.countdownTargetISO} label={invite.countdownLabel} />
+        <p className="font-serif-body italic text-base text-[hsl(var(--foreground)/0.75)] mb-8">
+          A special surprise awaits — scratch to uncover our sacred muhurtham countdown
+        </p>
+
+        <ScratchCard>
+          <Countdown targetISO={invite.countdownTargetISO} label={invite.countdownLabel} />
+        </ScratchCard>
       </motion.div>
     </section>
   );

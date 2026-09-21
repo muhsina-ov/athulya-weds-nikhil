@@ -23,10 +23,10 @@ export interface WeddingEvent {
 
 export const invite = {
   // ── Couple ──────────────────────────────────────────────
-  brideFirst: "Athulya",
   groomFirst: "Nikhil",
-  monogram: "A · N",
-  hashtag: "#AthulyaWedsNikhil",
+  brideFirst: "Athulya",
+  monogram: "N · A",
+  hashtag: "#NikhilWedsAthulya",
   greetingMalayalam: "ശുഭ മംഗല്യം",
   greetingEnglish: "Shubha Mangalyam",
 

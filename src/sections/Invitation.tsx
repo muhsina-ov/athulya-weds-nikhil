@@ -245,8 +245,8 @@ export default function Invitation() {
           </motion.div>
 
           <div className="grid gap-5 sm:grid-cols-2 sm:gap-4">
-            <FamilyCard side="left" role="The Bride" name={invite.brideFirst} parents={invite.brideParents} />
-            <FamilyCard side="right" role="The Groom" name={invite.groomFirst} parents={invite.groomParents} />
+            <FamilyCard side="left" role="The Groom" name={invite.groomFirst} parents={invite.groomParents} />
+            <FamilyCard side="right" role="The Bride" name={invite.brideFirst} parents={invite.brideParents} />
           </div>
         </div>
       </div>
